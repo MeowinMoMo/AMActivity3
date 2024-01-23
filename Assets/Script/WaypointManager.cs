@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class WaypointManager : MonoBehaviour
 {
-    public Vector2[] Waypoints;
+    public GameObject[] Waypoints;
     public Vector2 SpawnPoint;
     //public int _waypointIndex;
+
+    public GameObject[] LerpObj;
+    
 }

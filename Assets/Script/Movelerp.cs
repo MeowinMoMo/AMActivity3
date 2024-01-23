@@ -2,16 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MoveEnemy : MonoBehaviour
+public class Movelerp : MonoBehaviour
 {
-    public int _enemySpeed = 3;
+
+    [SerializeField] private float timeToTake;
+    public Transform enemy;
+
+    float m_currentTime;
     public int Hp = 3;
-    
+
     public int _waypointIndex = 0;
+    public int LerpMoveIndex = 0;
     WaypointManager Path;
 
     void Start()
     {
+        m_currentTime = 0;
         Path = FindObjectOfType<WaypointManager>();
         transform.position = GameObject.FindGameObjectWithTag("Spawn").transform.position;
     }
@@ -21,13 +27,22 @@ public class MoveEnemy : MonoBehaviour
     }
     public void MoveToWaypoint()
     {
-        /*transform.position = Vector2.MoveTowards(transform.position, Path.Waypoints[_waypointIndex], _enemySpeed * Time.deltaTime);*/
+        int NextWaypointIndex = _waypointIndex + 1;
+        m_currentTime += Time.deltaTime;
+        var percentTime = m_currentTime / timeToTake;
+        var newPos = BezierCurves.QuadraticLerp(Path.Waypoints[_waypointIndex].transform.position, Path.LerpObj[LerpMoveIndex].transform.position, Path.Waypoints[NextWaypointIndex].transform.position, percentTime);
+        enemy.position = newPos;
 
-        if (Vector2.Distance(Path.Waypoints[_waypointIndex].transform.position, transform.position) <= 0.05f)
+
+        if (Vector2.Distance(Path.Waypoints[NextWaypointIndex].transform.position, enemy.position) <= .01f)
         {
             _waypointIndex++;
-            if (_waypointIndex == Path.Waypoints.Length)
+            LerpMoveIndex++;
+            m_currentTime = 0;
+
+            if ( _waypointIndex >= Path.Waypoints.Length-1)
             {
+                
                 RestartLevel PlayerHp = FindAnyObjectByType<RestartLevel>();
                 PlayerHp.PlayerDamage();
                 Destroy(gameObject);
